@@ -32,7 +32,7 @@ def list_gpg_keys():
 	
 	LOGGER.debug('Listing imported GPG keys')
 	result = run('-q', 'gpg-pubkey', '--qf', "'%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n'")
-	return result
+	return [{key_line.split('\t')[0] : key_line.split('\t', maxsplit = 1)[1]} for key_line in result.splitlines()]
 	
 def remove_gpg_key(key_id):
 	'''Remove GPG key
