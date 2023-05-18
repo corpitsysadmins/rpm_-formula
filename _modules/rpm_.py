@@ -12,8 +12,6 @@ Refs:
 
 import logging
 
-import re
-
 LOGGER = logging.getLogger(__name__)
 
 def import_gpg_key(key_file):
