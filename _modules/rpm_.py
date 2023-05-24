@@ -11,8 +11,10 @@ Refs:
 '''
 
 import logging
+import re
 
 LOGGER = logging.getLogger(__name__)
+RPM_LIST_LINE = re.compile('^\s*(?P<key_name>gpg-pubkey-\S+{8}-\S+{8})\s+(?P<key_summary>.+)$')
 
 def import_gpg_key(key_file):
 	'''Import GPG key
@@ -32,8 +34,14 @@ def list_gpg_keys(key_id = None):
 	if key_id is not None:
 		key_name = '-'.join((key_name, key_id))
 	LOGGER.debug('Listing imported GPG keys')
-	result = run('-q', key_name, '--qf', "'%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n'")
-	return {key_line.split('\t')[0] : key_line.split('\t', maxsplit = 1)[1] for key_line in result.splitlines()} if result else {}
+	run_result = run('-q', key_name, '--qf', "'%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n'")
+	result = {}
+	for result_line in run_result.splitlines():
+		line_match = re.match(RPM_LIST_LINE, result_line)
+		if line_match is not None:
+			line_match = line_match.groupdict()
+			result[line_match['key_name']] = line_match['key_summary']
+	return result
 	
 def remove_gpg_key(key_id):
 	'''Remove GPG key
