@@ -23,13 +23,16 @@ def import_gpg_key(key_file):
 	result = run('--import', key_file)
 	return result
 	
-def list_gpg_keys():
+def list_gpg_keys(key_id = None):
 	'''List GPG keys
 	Return the list of GPG keys on the RPM database and their descriptions
 	'''
 	
+	key_name = 'gpg-pubkey'
+	if key_id is not None:
+		key_name = '-'.join((key_name, key_id))
 	LOGGER.debug('Listing imported GPG keys')
-	result = run('-q', 'gpg-pubkey', '--qf', "'%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n'")
+	result = run('-q', key_name, '--qf', "'%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n'")
 	return {key_line.split('\t')[0] : key_line.split('\t', maxsplit = 1)[1] for key_line in result.splitlines()}
 	
 def remove_gpg_key(key_id):
