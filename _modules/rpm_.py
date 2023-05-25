@@ -32,7 +32,7 @@ def list_gpg_keys(key_id = None):
 	if key_id is not None:
 		key_name = '-'.join((key_name, key_id))
 	LOGGER.debug('Listing imported GPG keys')
-	run_result = run('-q', key_name, '--qf', "'%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n'")
+	result = run('-q', key_name, '--qf', "'%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n'")
 	return {key_line.split('\t')[0] : key_line.split('\t', maxsplit = 1)[1] for key_line in result['stdout'].splitlines()} if not result['retcode'] else {}
 	
 def remove_gpg_key(key_id):
