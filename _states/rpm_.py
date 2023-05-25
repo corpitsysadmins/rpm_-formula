@@ -36,7 +36,7 @@ def imported_gpg_key(name, key_path = None, key_content = None):
 		'comment'	: '',
 	}
 	
-	key_details, key_path, rpm_key_name = _preload_keys(key_path = key_path, key_content = key_content))
+	key_details, key_path, rpm_key_name = _preload_keys(key_path = key_path, key_content = key_content)
 
 	if rpm_key_name:
 		ret['result'] = True
