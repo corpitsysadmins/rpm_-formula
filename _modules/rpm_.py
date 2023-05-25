@@ -21,7 +21,16 @@ def import_gpg_key(key_file):
 	
 	LOGGER.debug('Importing GPG key to RPM: %s', key_file)
 	result = run('--import', key_file)
-	return result
+	if result['retcode']:
+		raise RuntimeError(result['stderr'])
+	key_details = __salt__['gpg_.key_details'](filename = key_file)
+	key_list = list_gpg_keys(key_id = key_details['keyid'][-8:].lower())
+	if not key_list:
+		raise RuntimeError('Key import went sideways, somehow')
+	elif len(key_list) > 1:
+		raise RuntimeError('Imported key indistinguishable from another existing key')
+	else:
+		return key_list[0].keys()[0]
 	
 def list_gpg_keys(key_id = None):
 	'''List GPG keys
