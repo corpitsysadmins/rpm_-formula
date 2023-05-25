@@ -11,10 +11,8 @@ Refs:
 '''
 
 import logging
-import re
 
 LOGGER = logging.getLogger(__name__)
-RPM_LIST_LINE = re.compile('^\s*(?P<key_name>gpg-pubkey-\S{8}-\S{8})\s+(?P<key_summary>.+)$')
 
 def import_gpg_key(key_file):
 	'''Import GPG key
@@ -35,13 +33,7 @@ def list_gpg_keys(key_id = None):
 		key_name = '-'.join((key_name, key_id))
 	LOGGER.debug('Listing imported GPG keys')
 	run_result = run('-q', key_name, '--qf', "'%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n'")
-	result = {}
-	for result_line in run_result.splitlines():
-		line_match = re.match(RPM_LIST_LINE, result_line)
-		if line_match is not None:
-			line_match = line_match.groupdict()
-			result[line_match['key_name']] = line_match['key_summary']
-	return result
+	return {key_line.split('\t')[0] : key_line.split('\t', maxsplit = 1)[1] for key_line in result['stdout'].splitlines()} if not result['retcode'] else {}
 	
 def remove_gpg_key(key_id):
 	'''Remove GPG key
@@ -60,5 +52,5 @@ def run(*params, **kwargs):
 	kwparams = ['--{}={}'.format(key, value) for key, value in kwargs.items() if key[0] != '_']
 	
 	LOGGER.debug('Running command: rpm %s', ' '.join((*params, *kwparams)))
-	result = __salt__['cmd.run']('rpm {}'.format(' '.join((*params, *kwparams))))
+	result = __salt__['cmd.run_all']('rpm {}'.format(' '.join((*params, *kwparams))))
 	return result
