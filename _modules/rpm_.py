@@ -63,7 +63,7 @@ def remove_gpg_key(key_id = None, key_file = None):
 	elif len(rpm_key) > 1:
 		raise RuntimeError("There are multiple keys installed with the same ID, can't tell which one should be removed")
 	else:
-		rpm_key = rpm_key[0]
+		rpm_key = list(rpm_key.keys())[0]
 		LOGGER.debug('Removing GPG key from RPM: %s', rpm_key)
 		result = run('-e', rpm_key)
 	
