@@ -52,5 +52,5 @@ def run(*params, **kwargs):
 	kwparams = ['--{}={}'.format(key, value) for key, value in kwargs.items() if key[0] != '_']
 	
 	LOGGER.debug('Running command: rpm %s', ' '.join((*params, *kwparams)))
-	result = __salt__['cmd.run_all']('rpm {}'.format(' '.join((*params, *kwparams))))
+	result = __salt__['cmd.run_all']('rpm {}'.format(' '.join((*params, *kwparams))), ignore_retcode = True)
 	return result
