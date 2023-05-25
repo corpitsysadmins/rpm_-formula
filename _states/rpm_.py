@@ -57,3 +57,5 @@ def imported_gpg_key(name, key_path = None, key_content = None):
 				ret['comment'] = 'Key added to the RPM database'
 				ret['changes'].update({'rpm' : {'old' : '', 'new' : result}})
 				
+	return ret
+				
