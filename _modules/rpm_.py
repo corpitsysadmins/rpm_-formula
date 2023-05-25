@@ -30,7 +30,7 @@ def import_gpg_key(key_file):
 	elif len(key_list) > 1:
 		raise RuntimeError('Imported key indistinguishable from another existing key')
 	else:
-		return key_list[0].keys()[0]
+		return key_list.keys()[0]
 	
 def list_gpg_keys(key_id = None):
 	'''List GPG keys
