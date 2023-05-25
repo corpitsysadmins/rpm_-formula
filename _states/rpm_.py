@@ -58,4 +58,39 @@ def imported_gpg_key(name, key_path = None, key_content = None):
 				ret['changes'].update({'rpm' : {'old' : '', 'new' : result}})
 				
 	return ret
+	
+def removed_gpg_key(name, key_path = None, key_content = None):
+	'''Remove GPG key
+	Make sure that the provided GPG key is removed from the RPM database.
+	'''
+	
+	ret	=	{
+		'name'		: name,
+		'result'	: False,
+		'changes'	: {},
+		'comment'	: '',
+	}
+	
+	key_details, key_path, rpm_key_name = _preload_keys(key_path = key_path, key_content = key_content)
+
+	if not rpm_key_name:
+		ret['result'] = True
+		ret['comment'] = 'The key is already absent from the RPM database: {} -> {}'.format(key_details['keyid'], key_details['uids'])
+	else:
+		if __opts__['test']:
+			ret['result'] = None
+			ret['comment'] = 'The key would be removed from the RPM database: {}'.format(rpm_key_name)
+			ret['changes'].update({'rpm' : {'old' : rpm_key_name, 'new' : ''}})
+		else:
+			try:
+				result = __salt__['rpm_.remove_gpg_key'](key_id = key_details['keyid'][-8:].lower())
+			except Exception as error:
+				ret['comment'] = str(error)
+				return ret
+			else:
+				ret['result'] = True
+				ret['comment'] = 'Key removed from the RPM database'
+				ret['changes'].update({'rpm' : {'old' : result, 'new' : ''}})
+				
+	return ret
 				
