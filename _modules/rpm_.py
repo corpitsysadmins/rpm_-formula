@@ -44,14 +44,30 @@ def list_gpg_keys(key_id = None):
 	result = run('-q', key_name, '--qf', "'%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n'")
 	return {key_line.split('\t')[0] : key_line.split('\t', maxsplit = 1)[1] for key_line in result['stdout'].splitlines()} if not result['retcode'] else {}
 	
-def remove_gpg_key(key_id):
+def remove_gpg_key(key_id = None, key_file = None):
 	'''Remove GPG key
 	Remove the supplied gpg file (as anid) from the RPM database.
 	'''
 	
-	LOGGER.debug('Removing GPG key from RPM: %s', key_id)
-	result = run('-e', key_id)
-	return result
+	if (key_id is None) and (key_file is None):
+		raise RuntimeError('You must provide the ID of a key or the path to a file containing it')
+	elif (key_id is not None) and (key_file is not None):
+		raise RuntimeError('You must provide the ID of a key or the path to a file containing it, not both')
+	elif key_file is not None:
+		key_details = __salt__['gpg_.key_details'](filename = key_file)
+		key_id = key_details['keyid'][-8:].lower()
+	
+	rpm_key = list_gpg_keys(key_id = key_id)
+	if not rpm_key:
+		raise RuntimeError("The key is not installed, can't remove it")
+	elif len(rpm_key) > 1:
+		raise RuntimeError("There are multiple keys installed with the same ID, can't tell which one should be removed")
+	else:
+		rpm_key = rpm_key[0]
+		LOGGER.debug('Removing GPG key from RPM: %s', rpm_key)
+		result = run('-e', rpm_key)
+	
+	return rpm_key
 
 def run(*params, **kwargs):
 	'''Run rpm command
