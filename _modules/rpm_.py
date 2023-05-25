@@ -14,7 +14,7 @@ import logging
 import re
 
 LOGGER = logging.getLogger(__name__)
-RPM_LIST_LINE = re.compile('^\s*(?P<key_name>gpg-pubkey-\S+{8}-\S+{8})\s+(?P<key_summary>.+)$')
+RPM_LIST_LINE = re.compile('^\s*(?P<key_name>gpg-pubkey-\S{8}-\S{8})\s+(?P<key_summary>.+)$')
 
 def import_gpg_key(key_file):
 	'''Import GPG key
